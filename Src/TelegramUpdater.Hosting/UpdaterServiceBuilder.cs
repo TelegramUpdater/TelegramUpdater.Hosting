@@ -274,26 +274,6 @@ public class UpdaterServiceBuilder
         return ExecuteOthers(updater => updater.AddDefaultExceptionHandler(logLevel));
     }
 
-    private static bool TryResovleNamespaceToUpdateType(
-        string currentNs, [NotNullWhen(true)] out Type? type)
-    {
-        var nsParts = currentNs.Split('.');
-        if (nsParts.Length < 3)
-            throw new Exception("Namespace is invalid.");
-
-        type = nsParts[2] switch
-        {
-            "Messages" => typeof(Message),
-            "CallbackQueries" => typeof(CallbackQuery),
-            "InlineQueries" => typeof(InlineQuery),
-            _ => null
-        };
-
-        if (type is null)
-            return false;
-        return true;
-    }
-
     /// <summary>
     /// Automatically collects all classes that are marked as scoped handlers
     /// And adds them to the <see cref="IUpdater"/> instance.
@@ -316,40 +296,9 @@ public class UpdaterServiceBuilder
     public UpdaterServiceBuilder AutoCollectScopedHandlers(
         string handlersParentNamespace = "UpdateHandlers")
     {
-        var entryAssembly = Assembly.GetEntryAssembly();
-
-        if (entryAssembly is null)
-            throw new ApplicationException("Can't find entry assembly.");
-
-        var assemplyName = entryAssembly.GetName().Name;
-
-        var handlerNs = $"{assemplyName}.{handlersParentNamespace}";
-
-        // All types in *handlersParentNamespace*
-        var scopedHandlersTypes = entryAssembly.GetTypes()
-            .Where(x =>
-                x.Namespace is not null &&
-                x.Namespace.StartsWith(handlerNs))
-            .Where(x => x.IsClass)
-            .Where(x => typeof(IScopedUpdateHandler).IsAssignableFrom(x));
-
-        foreach (var scopedType in scopedHandlersTypes)
+        foreach (var container in UpdaterExtensions
+            .IterCollectedScopedContainers(handlersParentNamespace))
         {
-            if (!TryResovleNamespaceToUpdateType(scopedType.Namespace!, out var updateType))
-            {
-                continue;
-            }
-
-            var containerGeneric = typeof(ScopedUpdateHandlerContainerBuilder<,>)
-                .MakeGenericType(scopedType, updateType);
-
-            var container = (IScopedUpdateHandlerContainer?)Activator.CreateInstance(
-                containerGeneric,
-                new object?[]
-                {
-                        Enum.Parse<UpdateType>(updateType.Name), null, null
-                });
-
             if (container is null) continue;
 
             AddScopedUpdateHandler(container);
