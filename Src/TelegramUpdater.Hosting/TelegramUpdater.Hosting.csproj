@@ -6,7 +6,7 @@
 	<Nullable>enable</Nullable>
 	<Authors>immmdreza</Authors>
 	<Company>TelegramUpdater</Company>
-	<Version>1.4.0-preview.1.2</Version>
+	<Version>1.6.0-preview.0.0</Version>
 	<Description>Hosting extension package for TelegramUpdater</Description>
 	<Copyright>TelegramUpdater by immmdreza</Copyright>
 	<PackageProjectUrl>https://telegramupdater.github.io/</PackageProjectUrl>
