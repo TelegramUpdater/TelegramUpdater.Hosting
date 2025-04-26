@@ -6,18 +6,14 @@ using Telegram.Bot;
 
 namespace TelegramUpdater.Hosting;
 
-internal class SimpleWriterService : UpdateWriterServiceAbs
+internal class SimpleWriterService(IUpdater updater) : AbstractUpdateWriterService(updater)
 {
-    public SimpleWriterService(IUpdater updater) : base(updater)
-    {
-    }
-
     public override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (UpdaterOptions.FlushUpdatesQueue)
         {
             Logger.LogInformation("Flushing updates.");
-            await BotClient.GetUpdatesAsync(-1, 1, 0, cancellationToken: stoppingToken);
+            await BotClient.GetUpdates(-1, 1, 0, cancellationToken: stoppingToken).ConfigureAwait(false);
         }
 
         var offset = 0;
@@ -29,20 +25,23 @@ internal class SimpleWriterService : UpdateWriterServiceAbs
         {
             try
             {
-                var updates = await BotClient.GetUpdatesAsync(offset,
-                                                              100,
-                                                              timeOut,
-                                                              allowedUpdates: UpdaterOptions.AllowedUpdates,
-                                                              cancellationToken: stoppingToken);
+                var updates = await BotClient.GetUpdates(
+                    offset,
+                    100,
+                    timeOut,
+                    allowedUpdates: UpdaterOptions.AllowedUpdates,
+                    cancellationToken: stoppingToken)
+                .ConfigureAwait(false);
+
                 foreach (var update in updates)
                 {
-                    await EnqueueUpdateAsync(update, stoppingToken);
+                    await EnqueueUpdateAsync(update, stoppingToken).ConfigureAwait(false);
                     offset = update.Id + 1;
                 }
             }
             catch (Exception e)
             {
-                Logger.LogCritical(exception: e, "Auto update writer stopped due to an ecxeption.");
+                Logger.LogCritical(exception: e, "Auto update writer stopped due to an exception.");
                 Updater.EmergencyCancel();
                 break;
             }
