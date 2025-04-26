@@ -40,7 +40,7 @@ public static class UpdaterServiceExtensions
     /// <paramref name="preUpdateProcessorType"/> will be added to services if it's available.
     /// </para>
     /// </remarks>
-    /// <param name="botToken">Your bot api token.</param>
+    /// <param name="botToken">Your bot API token.</param>
     /// <param name="updaterOptions">Updater options.</param>
     /// <param name="serviceDescriptors">The service collection.</param>
     /// <param name="preUpdateProcessorType">
@@ -57,13 +57,13 @@ public static class UpdaterServiceExtensions
     /// </para>
     /// </param>
     /// <param name="builder">Use this to config your <see cref="IUpdater"/>.</param>
-    /// <typeparam name="TWriter">Type of your custom updater service. a child class of <see cref="UpdateWriterServiceAbs"/></typeparam>
+    /// <typeparam name="TWriter">Type of your custom updater service. a child class of <see cref="AbstractUpdateWriterService"/></typeparam>
     public static void AddTelegramUpdater<TWriter>(this IServiceCollection serviceDescriptors,
                                                    string botToken,
                                                    UpdaterOptions updaterOptions = default,
                                                    Action<UpdaterServiceBuilder>? builder = default,
                                                    Type? preUpdateProcessorType = default)
-        where TWriter : UpdateWriterServiceAbs
+        where TWriter : AbstractUpdateWriterService
     {
         serviceDescriptors.AddTelegramBotClient(botToken);
 
@@ -79,9 +79,9 @@ public static class UpdaterServiceExtensions
                 var updater = new Updater(botClient, new UpdaterOptions(
                     updaterOptions.MaxDegreeOfParallelism,
                     logger: services.GetRequiredService<ILogger<IUpdater>>(),
-                    updaterOptions.CancellationToken,
-                    updaterOptions.FlushUpdatesQueue,
-                    updaterOptions.AllowedUpdates
+                    cancellationToken: updaterOptions.CancellationToken,
+                    flushUpdatesQueue: updaterOptions.FlushUpdatesQueue,
+                    allowedUpdates: updaterOptions.AllowedUpdates
                  ), services, preUpdateProcessorType);
 
                 updaterBuilder.AddToUpdater(updater);
@@ -124,13 +124,13 @@ public static class UpdaterServiceExtensions
     /// </param>
     /// <param name="updaterOptions">Options for this updater.</param>
     /// <param name="builder">Use this to config your <see cref="IUpdater"/>.</param>
-    /// <typeparam name="TWriter">Type of your custom updater service. a child class of <see cref="UpdateWriterServiceAbs"/></typeparam>
+    /// <typeparam name="TWriter">Type of your custom updater service. a child class of <see cref="AbstractUpdateWriterService"/></typeparam>
     public static void AddTelegramUpdater<TWriter>(this IServiceCollection serviceDescriptors,
                                                    ITelegramBotClient telegramBot,
                                                    UpdaterOptions updaterOptions = default,
                                                    Action<UpdaterServiceBuilder>? builder = default,
                                                    Type? preUpdateProcessorType = default)
-        where TWriter : UpdateWriterServiceAbs
+        where TWriter : AbstractUpdateWriterService
     {
         var updaterBuilder = new UpdaterServiceBuilder();
         builder?.Invoke(updaterBuilder);
@@ -143,9 +143,9 @@ public static class UpdaterServiceExtensions
                 var updater = new Updater(telegramBot, new UpdaterOptions(
                     updaterOptions.MaxDegreeOfParallelism,
                     logger: services.GetRequiredService<ILogger<IUpdater>>(),
-                    updaterOptions.CancellationToken,
-                    updaterOptions.FlushUpdatesQueue,
-                    updaterOptions.AllowedUpdates
+                    cancellationToken: updaterOptions.CancellationToken,
+                    flushUpdatesQueue: updaterOptions.FlushUpdatesQueue,
+                    allowedUpdates: updaterOptions.AllowedUpdates
                  ), services, preUpdateProcessorType);
 
                 updaterBuilder.AddToUpdater(updater);
@@ -170,12 +170,12 @@ public static class UpdaterServiceExtensions
     /// <paramref name="preUpdateProcessorType"/> will be added to services if it's available.
     /// </para>
     /// </remarks>
-    /// <typeparam name="TWriter">Type of your custom updater service. a child class of <see cref="UpdateWriterServiceAbs"/></typeparam>
+    /// <typeparam name="TWriter">Type of your custom updater service. a child class of <see cref="AbstractUpdateWriterService"/></typeparam>
     public static void AddTelegramUpdater<TWriter>(this IServiceCollection serviceDescriptors,
                                                    UpdaterOptions updaterOptions,
                                                    Action<UpdaterServiceBuilder> builder,
                                                    Type? preUpdateProcessorType = default)
-        where TWriter : UpdateWriterServiceAbs
+        where TWriter : AbstractUpdateWriterService
     {
         var updaterBuilder = new UpdaterServiceBuilder();
         builder(updaterBuilder);
@@ -190,9 +190,9 @@ public static class UpdaterServiceExtensions
                 var updater = new Updater(telegramBot, new UpdaterOptions(
                     updaterOptions.MaxDegreeOfParallelism,
                     logger: services.GetRequiredService<ILogger<IUpdater>>(),
-                    updaterOptions.CancellationToken,
-                    updaterOptions.FlushUpdatesQueue,
-                    updaterOptions.AllowedUpdates
+                    cancellationToken: updaterOptions.CancellationToken,
+                    flushUpdatesQueue: updaterOptions.FlushUpdatesQueue,
+                    allowedUpdates: updaterOptions.AllowedUpdates
                  ), services, preUpdateProcessorType);
 
                 updaterBuilder.AddToUpdater(updater);
@@ -217,7 +217,7 @@ public static class UpdaterServiceExtensions
     /// <paramref name="preUpdateProcessorType"/> will be added to services if it's available.
     /// </para>
     /// </remarks>
-    /// <param name="botToken">Your bot api token.</param>
+    /// <param name="botToken">Your bot API token.</param>
     /// <param name="updaterOptions">Updater options.</param>
     /// <param name="serviceDescriptors">The service collection.</param>
     /// <param name="preUpdateProcessorType">
@@ -329,9 +329,9 @@ public static class UpdaterServiceExtensions
                 var updater = new Updater(telegramBot, new UpdaterOptions(
                     updaterOptions.MaxDegreeOfParallelism,
                     logger: services.GetRequiredService<ILogger<IUpdater>>(),
-                    updaterOptions.CancellationToken,
-                    updaterOptions.FlushUpdatesQueue,
-                    updaterOptions.AllowedUpdates
+                    cancellationToken: updaterOptions.CancellationToken,
+                    flushUpdatesQueue: updaterOptions.FlushUpdatesQueue,
+                    allowedUpdates: updaterOptions.AllowedUpdates
                  ), services, preUpdateProcessorType);
 
                 updaterBuilder.AddToUpdater(updater);
@@ -373,9 +373,9 @@ public static class UpdaterServiceExtensions
                 var updater = new Updater(telegramBot, new UpdaterOptions(
                     updaterOptions.MaxDegreeOfParallelism,
                     logger: services.GetRequiredService<ILogger<IUpdater>>(),
-                    updaterOptions.CancellationToken,
-                    updaterOptions.FlushUpdatesQueue,
-                    updaterOptions.AllowedUpdates
+                    cancellationToken: updaterOptions.CancellationToken,
+                    flushUpdatesQueue: updaterOptions.FlushUpdatesQueue,
+                    allowedUpdates: updaterOptions.AllowedUpdates
                  ), services, preUpdateProcessorType);
 
                 updaterBuilder.AddToUpdater(updater);
@@ -398,7 +398,7 @@ public static class UpdaterServiceExtensions
     /// <paramref name="preUpdateProcessorType"/> will be added to services if it's available.
     /// </para>
     /// </remarks>
-    /// <param name="botToken">Your bot api token.</param>
+    /// <param name="botToken">Your bot API token.</param>
     /// <param name="updaterOptions">Updater options.</param>
     /// <param name="serviceDescriptors">The service collection.</param>
     /// <param name="preUpdateProcessorType">
@@ -435,9 +435,9 @@ public static class UpdaterServiceExtensions
                 var updater = new Updater(botClient, new UpdaterOptions(
                     updaterOptions.MaxDegreeOfParallelism,
                     logger: services.GetRequiredService<ILogger<IUpdater>>(),
-                    updaterOptions.CancellationToken,
-                    updaterOptions.FlushUpdatesQueue,
-                    updaterOptions.AllowedUpdates
+                    cancellationToken: updaterOptions.CancellationToken,
+                    flushUpdatesQueue: updaterOptions.FlushUpdatesQueue,
+                    allowedUpdates: updaterOptions.AllowedUpdates
                  ), services, preUpdateProcessorType);
 
                 updaterBuilder.AddToUpdater(updater);
@@ -453,8 +453,9 @@ public static class UpdaterServiceExtensions
     /// <summary>
     /// Use this method to write updates when manual writing in enabled.
     /// </summary>
-    public static async Task WriteUpdateAsync(this IUpdater updater,
-                                              Update update,
-                                              CancellationToken cancellationToken = default)
-        => await updater.WriteAsync(update, cancellationToken);
+    public static async Task WriteUpdateAsync(
+        this IUpdater updater,
+        Update update,
+        CancellationToken cancellationToken = default)
+        => await updater.WriteAsync(update, cancellationToken).ConfigureAwait(false);
 }

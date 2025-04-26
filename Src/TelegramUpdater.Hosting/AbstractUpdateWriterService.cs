@@ -6,21 +6,17 @@ using System.Threading.Tasks;
 namespace TelegramUpdater.Hosting;
 
 /// <summary>
-/// Use this abstract class to build your custome update writer as a background service.
+/// Use this abstract class to build your custom update writer as a background service.
 /// </summary>
 /// <remarks>
-/// <see cref="Updater"/> Should exsits in <see cref="IServiceProvider"/>
+/// <see cref="Updater"/> Should exists in <see cref="IServiceProvider"/>
 /// </remarks>
-public abstract class UpdateWriterServiceAbs : UpdateWriterAbs,
+/// <inheritdoc/>
+public abstract class AbstractUpdateWriterService(IUpdater updater) : AbstractUpdateWriter(updater),
     IHostedService, IDisposable
 {
     private Task? _executingTask;
     private readonly CancellationTokenSource _stoppingCts = new();
-
-    /// <inheritdoc/>
-    protected UpdateWriterServiceAbs(IUpdater updater) : base(updater)
-    {
-    }
 
     /// <inheritdoc/>
     public virtual Task StartAsync(CancellationToken cancellationToken)
@@ -51,13 +47,17 @@ public abstract class UpdateWriterServiceAbs : UpdateWriterAbs,
         try
         {
             // Signal cancellation to the executing method
+#if NET8_0_OR_GREATER
+            await _stoppingCts.CancelAsync().ConfigureAwait(false);
+#else
             _stoppingCts.Cancel();
+#endif
         }
         finally
         {
             // Wait until the task completes or the stop token triggers
             await Task.WhenAny(_executingTask, Task.Delay(Timeout.Infinite,
-                                                          cancellationToken));
+                cancellationToken)).ConfigureAwait(false);
         }
     }
 

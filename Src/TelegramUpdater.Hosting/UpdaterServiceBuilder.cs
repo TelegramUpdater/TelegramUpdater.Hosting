@@ -2,9 +2,6 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -27,8 +24,8 @@ public class UpdaterServiceBuilder
     /// </summary>
     public UpdaterServiceBuilder()
     {
-        _scopedHandlerContainers = new();
-        _otherExecutions = new();
+        _scopedHandlerContainers = [];
+        _otherExecutions = [];
     }
 
     internal void AddToUpdater(IUpdater updater)
@@ -77,7 +74,7 @@ public class UpdaterServiceBuilder
     }
 
     /// <summary>
-    /// Adds an scoped handler to the updater. ( Use this if you'r not sure. )
+    /// Adds an scoped handler to the updater. ( Use this if you're not sure. )
     /// </summary>
     /// <typeparam name="THandler">Handler type.</typeparam>
     /// <typeparam name="TUpdate">Update type.</typeparam>
@@ -150,17 +147,15 @@ public class UpdaterServiceBuilder
             .MakeGenericType(typeOfScopedHandler, _t);
 
         var container = (IScopedUpdateHandlerContainer?)Activator.CreateInstance(
-            containerGeneric, new object?[] { updateType.Value, filter, getT });
+            containerGeneric, [updateType.Value, filter, getT]);
 
         if (container != null)
         {
             return AddScopedUpdateHandler(container);
         }
-        else
-        {
-            throw new InvalidOperationException(
-                "Handler not added to the Scoped Handlers! The instance of it is null.");
-        }
+
+        throw new InvalidOperationException(
+            "Handler not added to the Scoped Handlers! The instance of it is null.");
     }
 
     /// <summary>
@@ -170,7 +165,7 @@ public class UpdaterServiceBuilder
     /// <param name="filter">
     /// The filter to choose the right updates to handle.
     /// <para>
-    /// Leave empty if you applied your fillter using <see cref="ApplyFilterAttribute"/> before.
+    /// Leave empty if you applied your filler using <see cref="ApplyFilterAttribute"/> before.
     /// </para>
     /// </param>
     public UpdaterServiceBuilder AddMessageHandler<THandler>(Filter<Message>? filter = default)
@@ -184,7 +179,7 @@ public class UpdaterServiceBuilder
     /// <param name="filter">
     /// The filter to choose the right updates to handle.
     /// <para>
-    /// Leave empty if you applied your fillter using <see cref="ApplyFilterAttribute"/> before.
+    /// Leave empty if you applied your filter using <see cref="ApplyFilterAttribute"/> before.
     /// </para>
     /// </param>
     public UpdaterServiceBuilder AddCallbackQueryHandler<THandler>(Filter<CallbackQuery>? filter = default)
@@ -220,10 +215,10 @@ public class UpdaterServiceBuilder
     /// <summary>
     /// Add your exception handler to this updater.
     /// </summary>
-    /// <param name="callback">A callback function that will be called when the error catched.</param>
+    /// <param name="callback">A callback function that will be called when the error catches.</param>
     /// <param name="messageMatch">Handle only when <see cref="Exception.Message"/> matches a text.</param>
     /// <param name="allowedHandlers">
-    /// Handle only when the <see cref="Exception"/> occured in specified
+    /// Handle only when the <see cref="Exception"/> occurred in specified
     /// <see cref="IUpdateHandler"/>s
     /// <para>Leave null to handle all.</para>
     /// </param>
@@ -245,7 +240,7 @@ public class UpdaterServiceBuilder
     /// Add your exception handler to this updater.
     /// </summary>
     /// <param name="callback">
-    /// A callback function that will be called when the error catched.
+    /// A callback function that will be called when the error catches.
     /// </param>
     /// <param name="messageMatch">
     /// Handle only when <see cref="Exception.Message"/> matches a text.
@@ -261,7 +256,7 @@ public class UpdaterServiceBuilder
         where TException : Exception where THandler : IUpdateHandler
     {
         return ExecuteOthers(updater => updater.AddExceptionHandler<TException>(
-            callback, messageMatch, new[] { typeof(THandler) }, inherit));
+            callback, messageMatch, [typeof(THandler)], inherit));
     }
 
     /// <summary>
@@ -287,7 +282,7 @@ public class UpdaterServiceBuilder
     /// into different parent folders.
     /// </item>
     /// <item>
-    /// Parent name should match the update type name, eg: <c>Messages</c> for <see cref="UpdateType.Message"/>
+    /// Parent name should match the update type name, Eg: <c>Messages</c> for <see cref="UpdateType.Message"/>
     /// </item>
     /// </list>
     /// Eg: <paramref name="handlersParentNamespace"/>/Messages/MyScopedMessageHandler
